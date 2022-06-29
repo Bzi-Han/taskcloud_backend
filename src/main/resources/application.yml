@@ -1,0 +1,41 @@
+# spring设置
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3888/taskcloud?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: cvY:mAUbv8KLk.X
+
+# swagger设置
+swagger2:
+  enable: false
+
+#数据安全设置
+data-security:
+  # 用户密码混淆
+  password:
+    salt: Bzi_Han
+  # jwt签名密钥
+  jwt:
+    signKey: Bzi_Han
+    expiryDate: 7
+  # 通行证加解密
+  passport:
+    aesKey: 8rHKFpP:zJV-XLMp
+    aesIv: cUQ-eY3Nrs!BPt-Z
+  # 数据加解密
+  data:
+    decrypt-enable: true
+    encrypt-enable: true
+    privateKey: MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAL2oQKnwONm3H8EuWkst+E1HetadmDClNj4wG9QEaa2TfI/m33EAKOJCf43EIeMNMTS5HJBvyKhNI0CSg0qPfXEgKAjXAu1reMTGZGUWuwYk4v1cHXr5QUpNxCtARTo5M6f0teUC5gza6+DKn1XV5JqbDNTtgvFAvwNQzrTmq0ZBAgMBAAECgYEAu73RfSfybvqK8aWb9m3kLUPEAq1wmT8Cah8ffQp9PjkQhjbKG0dIMWoYcFKmJOfLPOC9uPEfFhN+AQ7H7sgKKHsjgEpt43L2X1sqAMqCShWTTxfiIg2WilWFKEsxj2OqSyZeRnPLkMQzxBAuM04kNyBuE+Am8vIDs5LeqnWrnx0CQQDvhGdQWguiohVU0tsSXjiMLJ7yQ9eAH6QOrHNEkhOMAxTh1zMaCrnMvx8x3/zaOxSnTEK8zRekslf1cp3PGvlzAkEAyrV2IrGWYk0b5hD7HuM2DIwQg4SwMUB14SWoKHzxH7CIp02HQ6zNXzuEcefK7YeC3SH2Whnl1qlcWcrNoInkewJAbvPfxBoiX7FDvmp67zRUb6LP8pw4vPJrVhzOvMoKYgafasr8siibz1wNwFXpVNKfi6xJEhrTxAiVtG7m6aSuPwJATA1AwUt3bHIZoXuFe9UrFhIGsBE8OX5Bu7LxIB+gJ4+H9Zz0vsM6WhxuWH3qeKt6wZRYZP2Kabso1tdrxmt1uQJAS9qHozrSmF9bBDJFwWBR+s3mQVHcwIpTB6cCpHBWE/nIl+deA+dzTTxaXN/s3eMcCLnovYN3DKrTO7BeBTnlRA==
+    publicKey: MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9qECp8DjZtx/BLlpLLfhNR3rWnZgwpTY+MBvUBGmtk3yP5t9xACjiQn+NxCHjDTE0uRyQb8ioTSNAkoNKj31xICgI1wLta3jExmRlFrsGJOL9XB16+UFKTcQrQEU6OTOn9LXlAuYM2uvgyp9V1eSamwzU7YLxQL8DUM605qtGQQIDAQAB
+    aesKey: 6z_.Fb-5LB2NsyT=
+    aesIv: 21120903-bzi_han
+
+# 脚本容器设置
+engine:
+  host: 127.0.0.1
+  port: 16888
+  key: Bzi_Han
+  reconnect: true
+  reconnectInterval: 30000
+  logRelativePath: /tasklogs/
