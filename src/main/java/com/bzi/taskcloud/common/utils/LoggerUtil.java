@@ -12,15 +12,15 @@ public class LoggerUtil {
 
     static {
         try {
-            File logPath = new File(System.getProperty("user.dir") + "\\logs");
+            File logPath = new File(System.getProperty("user.dir") + "/logs");
             if (!logPath.exists()) {
                 if (!logPath.mkdir()) {
                     throw new IOException("无法创建日志目录");
                 }
             }
 
-            m_runtimeLogFile = new PrintWriter(System.getProperty("user.dir") + "\\logs\\runtime_log.log");
-            m_runtimeTraceFile = new PrintWriter(System.getProperty("user.dir") + "\\logs\\runtime_trace.log");
+            m_runtimeLogFile = new PrintWriter(System.getProperty("user.dir") + "/logs/runtime_log.log");
+            m_runtimeTraceFile = new PrintWriter(System.getProperty("user.dir") + "/logs/runtime_trace.log");
         } catch (IOException e) {
             throw new java.lang.Error("====================================初始化日志输出失败====================================");
         }
