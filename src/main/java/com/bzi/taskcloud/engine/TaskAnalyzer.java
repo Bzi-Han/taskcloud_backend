@@ -46,7 +46,7 @@ public class TaskAnalyzer {
                 );
             }
             case python -> {
-                var startPos = script.indexOf("'''{", script.indexOf("getTaskFunctionList")) + 3;
+                var startPos = script.indexOf("'''{", script.indexOf("getTaskFunctionList")) + 4;
                 parentNode = objectMapper.readTree(
                         String.format("{%s}",
                                 script.substring(
@@ -57,7 +57,7 @@ public class TaskAnalyzer {
                 );
             }
             case javascript -> {
-                var startPos = script.indexOf("`{", script.indexOf("getTaskFunctionList")) + 3;
+                var startPos = script.indexOf("`{", script.indexOf("getTaskFunctionList")) + 2;
                 parentNode = objectMapper.readTree(
                         String.format("{%s}",
                                 script.substring(
@@ -70,9 +70,7 @@ public class TaskAnalyzer {
         }
 
         JsonNode finalParentNode = parentNode;
-        parentNode.fieldNames().forEachRemaining(fieldName -> {
-            result.put(fieldName, finalParentNode.get(fieldName).asText());
-        });
+        parentNode.fieldNames().forEachRemaining(fieldName -> result.put(fieldName, finalParentNode.get(fieldName).asText()));
 
         return result;
     }
