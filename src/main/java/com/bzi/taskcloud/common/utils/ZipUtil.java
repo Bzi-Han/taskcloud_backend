@@ -31,6 +31,11 @@ public class ZipUtil {
                     }
                 }
 
+                if (!file.getParentFile().exists()) {
+                    if (!file.getParentFile().mkdirs())
+                        return false;
+                }
+
                 Files.copy(zip.getInputStream(entry), file.toPath());
             }
         }
