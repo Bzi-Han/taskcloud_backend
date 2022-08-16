@@ -4,6 +4,10 @@ spring:
     url: jdbc:mysql://127.0.0.1:3888/taskcloud?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
     password: cvY:mAUbv8KLk.X
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
 
 # swagger设置
 swagger2:

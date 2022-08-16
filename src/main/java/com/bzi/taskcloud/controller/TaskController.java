@@ -4,14 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.bzi.taskcloud.common.dto.TaskImportDTO;
 import com.bzi.taskcloud.common.dto.TaskPublishDTO;
 import com.bzi.taskcloud.common.dto.TaskReviewDTO;
 import com.bzi.taskcloud.common.dto.TaskUpdateDTO;
+import com.bzi.taskcloud.common.exception.DoNotEncryptionResultException;
 import com.bzi.taskcloud.common.lang.Result;
 import com.bzi.taskcloud.common.lang.TaskState;
 import com.bzi.taskcloud.common.lang.UserType;
 import com.bzi.taskcloud.common.utils.AccountUtil;
 import com.bzi.taskcloud.common.utils.PageUtil;
+import com.bzi.taskcloud.common.utils.ZipUtil;
 import com.bzi.taskcloud.common.vo.TaskDetailInfoDeveloperVO;
 import com.bzi.taskcloud.common.vo.TaskDetailInfoUserVO;
 import com.bzi.taskcloud.engine.TaskAnalyzer;
@@ -22,13 +25,18 @@ import com.bzi.taskcloud.service.ITaskService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
@@ -79,6 +87,110 @@ public class TaskController {
         BeanUtils.copyProperties(task, taskDetailInfoDeveloperVO);
 
         return Result.succeed(taskDetailInfoDeveloperVO);
+    }
+
+    @ApiOperation(value = "任务仓库导入", notes = "管理员接口")
+    @PostMapping("/import")
+    @RolesAllowed("admin")
+    public Result importTasks(@Validated @RequestBody TaskImportDTO taskImportDTO) throws GitAPIException, IOException {
+        var repositoryPath = new File(System.getProperty("user.dir") + "/temp/" + System.currentTimeMillis() + "/");
+        var repository = Git.cloneRepository()
+                .setURI(taskImportDTO.getRepository())
+                .setDirectory(repositoryPath)
+                .call();
+
+        var tasks = TaskAnalyzer.resolveTask(repositoryPath);
+        for (var task : tasks) {
+            if (taskImportDTO.isReview()) {
+                task.setRating(0f);
+                task.setDomain("");
+                task.setInterfaces("");
+
+                task.setState(TaskState.review.ordinal());
+                task.setStateMessage("任务审核中");
+            } else {
+                task.setRating(0f);
+
+                // 扫描通行证主域名与接口
+                task.setDomain(TaskAnalyzer.scanDomain(task));
+                task.setInterfaces("");
+                TaskAnalyzer.scanInterface(task).forEach((key, value) -> {
+                    if (task.getInterfaces().isEmpty())
+                        task.setInterfaces(value);
+                    else
+                        task.setInterfaces(task.getInterfaces() + "," + value);
+                });
+
+                task.setState(TaskState.accept.ordinal());
+                task.setStateMessage("任务已导入");
+            }
+        }
+
+        Assert.isTrue(taskService.saveBatch(tasks), "任务仓库导入失败！");
+
+        return Result.succeed(tasks);
+    }
+
+    @ApiOperation(value = "任务压缩包导入", notes = "管理员接口")
+    @PostMapping("/import/upload/{review}")
+    @RolesAllowed("admin")
+    @DecryptRequest(value = false)
+    @EncryptResponse(value = false)
+    public Result importTasksByUpload(@PathVariable Boolean review, @RequestParam("file") MultipartFile file) throws DoNotEncryptionResultException {
+        try {
+            Assert.isTrue(!file.isEmpty(), "请上传zip文件！");
+            Assert.isTrue("application/x-zip-compressed".equals(file.getContentType()), "请上传zip文件！");
+
+            // 创建仓库路径
+            var repositoryPath = new File(System.getProperty("user.dir") + "/temp/" + System.currentTimeMillis() + "/");
+            var repositoryFilePath = new File(repositoryPath, "repository.zip");
+
+            // 检测仓库路径是否存在
+            if (!repositoryPath.exists())
+                Assert.isTrue(repositoryPath.mkdirs(), "创建仓库目录失败。");
+
+            // 保存文件
+            file.transferTo(repositoryFilePath);
+            // 解压文件
+            Assert.isTrue(ZipUtil.unzip(repositoryFilePath), "解压仓库文件失败。");
+
+            // 解析仓库任务
+            var tasks = TaskAnalyzer.resolveTask(repositoryPath);
+            for (var task : tasks) {
+                if (review) {
+                    task.setRating(0f);
+                    task.setDomain("");
+                    task.setInterfaces("");
+
+                    task.setState(TaskState.review.ordinal());
+                    task.setStateMessage("任务审核中");
+                } else {
+                    task.setRating(0f);
+
+                    // 扫描通行证主域名与接口
+                    task.setDomain(TaskAnalyzer.scanDomain(task));
+                    task.setInterfaces("");
+                    TaskAnalyzer.scanInterface(task).forEach((key, value) -> {
+                        if (task.getInterfaces().isEmpty())
+                            task.setInterfaces(value);
+                        else
+                            task.setInterfaces(task.getInterfaces() + "," + value);
+                    });
+
+                    task.setState(TaskState.accept.ordinal());
+                    task.setStateMessage("任务已导入");
+                }
+            }
+
+            // 保存到数据库中
+            Assert.isTrue(taskService.saveBatch(tasks), "任务仓库导入失败！");
+
+            // 返回结果
+            return Result.succeed(tasks);
+
+        } catch (Exception exception) {
+            throw new DoNotEncryptionResultException(exception.getMessage());
+        }
     }
 
     @ApiOperation(value = "任务审核", notes = "管理员接口")

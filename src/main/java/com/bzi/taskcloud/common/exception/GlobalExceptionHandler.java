@@ -6,6 +6,7 @@ import com.bzi.taskcloud.engine.TaskDispatcherException;
 import com.bzi.taskcloud.security.data.DecryptRequest;
 import com.bzi.taskcloud.security.data.EncryptResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -58,6 +59,23 @@ public class GlobalExceptionHandler implements AuthenticationEntryPoint, AccessD
     @ExceptionHandler(value = TaskDispatcherException.class)
     public Result handler(TaskDispatcherException exception){
         LoggerUtil.failed("任务分发失败", exception);
+
+        return Result.failed(exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = TransportException.class)
+    public Result handler(TransportException exception){
+        LoggerUtil.failed("任务仓库导入失败", exception);
+
+        return Result.failed(exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = DoNotEncryptionResultException.class)
+    @EncryptResponse(value = false)
+    public Result handler(DoNotEncryptionResultException exception){
+        LoggerUtil.failed("任务仓库导入失败", exception);
 
         return Result.failed(exception.getMessage());
     }
