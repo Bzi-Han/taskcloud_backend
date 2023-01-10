@@ -11,7 +11,7 @@ spring:
 
 # swagger设置
 swagger2:
-  enable: false
+  enable: false # spring-fox暂不支持spring-boot_3.0.0+，所以升级后无法使用文档
 
 #数据安全设置
 data-security:

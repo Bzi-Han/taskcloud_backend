@@ -34,7 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -54,8 +54,12 @@ import java.util.Objects;
 @RequestMapping("/task")
 @Api(value = "任务模块", description = "任务模块")
 public class TaskController {
+    private final ITaskService taskService;
+
     @Autowired
-    private ITaskService taskService;
+    public TaskController(ITaskService taskService) {
+        this.taskService = taskService;
+    }
 
     @ApiOperation(value = "任务发布", notes = "开发者接口")
     @PostMapping("/publish")

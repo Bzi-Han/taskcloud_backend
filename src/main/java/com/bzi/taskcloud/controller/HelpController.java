@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -45,8 +45,12 @@ import java.util.Objects;
 @RequestMapping("/help")
 @Api(value = "帮助模块", description = "帮助模块")
 public class HelpController {
+    private final IHelpService helpService;
+
     @Autowired
-    private IHelpService helpService;
+    public HelpController(IHelpService helpService) {
+        this.helpService = helpService;
+    }
 
     @ApiOperation(value = "添加一篇帮助文章", notes = "开发者接口")
     @PostMapping("/publish")

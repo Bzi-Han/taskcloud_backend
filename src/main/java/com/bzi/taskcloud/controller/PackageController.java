@@ -10,7 +10,6 @@ import com.bzi.taskcloud.common.lang.Result;
 import com.bzi.taskcloud.common.lang.TaskState;
 import com.bzi.taskcloud.common.utils.AccountUtil;
 import com.bzi.taskcloud.common.utils.PageUtil;
-import com.bzi.taskcloud.common.vo.PackageAvailableListVO;
 import com.bzi.taskcloud.common.vo.PackageDetailInfoVO;
 import com.bzi.taskcloud.engine.TaskDispatcher;
 import com.bzi.taskcloud.entity.Config;
@@ -56,18 +55,22 @@ import java.util.Objects;
 @RequestMapping("/package")
 @Api(value = "任务包模块", description = "任务包模块")
 public class PackageController {
+    private final IPackageService packageService;
+    private final ITaskService taskService;
+    private final IConfigService configService;
+    private final DataSourceTransactionManager dataSourceTransactionManager;
+    private final TransactionDefinition transactionDefinition;
+    private final TaskDispatcher taskDispatcher;
+
     @Autowired
-    private IPackageService packageService;
-    @Autowired
-    private ITaskService taskService;
-    @Autowired
-    private IConfigService configService;
-    @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
-    @Autowired
-    private TransactionDefinition transactionDefinition;
-    @Autowired
-    private TaskDispatcher taskDispatcher;
+    public PackageController(IPackageService packageService, ITaskService taskService, IConfigService configService, DataSourceTransactionManager dataSourceTransactionManager, TransactionDefinition transactionDefinition, TaskDispatcher taskDispatcher) {
+        this.packageService = packageService;
+        this.taskService = taskService;
+        this.configService = configService;
+        this.dataSourceTransactionManager = dataSourceTransactionManager;
+        this.transactionDefinition = transactionDefinition;
+        this.taskDispatcher = taskDispatcher;
+    }
 
     @ApiOperation(value = "添加一个任务包", notes = "用户接口")
     @PostMapping("/add")

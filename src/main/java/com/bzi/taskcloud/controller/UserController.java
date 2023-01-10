@@ -27,8 +27,8 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -47,18 +47,22 @@ import java.util.Objects;
 @RequestMapping("/user")
 @Api(value = "用户模块", description = "用户模块")
 public class UserController {
+    private final IUserService userService;
+    private final ITaskService taskService;
+    private final IHelpService helpService;
+    private final ITaskCommentService taskCommentService;
+    private final DataSourceTransactionManager dataSourceTransactionManager;
+    private final TransactionDefinition transactionDefinition;
+
     @Autowired
-    private IUserService userService;
-    @Autowired
-    private ITaskService taskService;
-    @Autowired
-    private IHelpService helpService;
-    @Autowired
-    private ITaskCommentService taskCommentService;
-    @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
-    @Autowired
-    private TransactionDefinition transactionDefinition;
+    public UserController(IUserService userService, ITaskService taskService, IHelpService helpService, ITaskCommentService taskCommentService, DataSourceTransactionManager dataSourceTransactionManager, TransactionDefinition transactionDefinition) {
+        this.userService = userService;
+        this.taskService = taskService;
+        this.helpService = helpService;
+        this.taskCommentService = taskCommentService;
+        this.dataSourceTransactionManager = dataSourceTransactionManager;
+        this.transactionDefinition = transactionDefinition;
+    }
 
     @ApiOperation(value = "用户注册", notes = "用户接口")
     @PostMapping("/register")

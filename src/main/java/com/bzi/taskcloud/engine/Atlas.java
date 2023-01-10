@@ -16,14 +16,16 @@ public class Atlas {
     private static boolean firstStart = true;
     private LocalDateTime lastStart;
 
-    @Autowired
-    private ITaskLogService taskLogService;
-    @Autowired
-    private IPackageService packageService;
-    @Autowired
-    private TaskDispatcher taskDispatcher;
+    private final ITaskLogService taskLogService;
+    private final IPackageService packageService;
+    private final TaskDispatcher taskDispatcher;
 
-    Atlas() {
+    @Autowired
+    Atlas(ITaskLogService taskLogService, IPackageService packageService, TaskDispatcher taskDispatcher) {
+        this.taskLogService = taskLogService;
+        this.packageService = packageService;
+        this.taskDispatcher = taskDispatcher;
+
         new Thread(() -> {
             while (active) {
                 try {

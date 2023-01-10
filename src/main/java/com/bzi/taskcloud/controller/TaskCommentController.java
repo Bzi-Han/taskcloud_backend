@@ -42,14 +42,18 @@ import java.time.LocalDateTime;
 @RequestMapping("/taskComment")
 @Api(value = "任务评价模块", description = "任务评价模块")
 public class TaskCommentController {
+    private final ITaskCommentService taskCommentService;
+    private final ITaskService taskService;
+    private final DataSourceTransactionManager dataSourceTransactionManager;
+    private final TransactionDefinition transactionDefinition;
+
     @Autowired
-    private ITaskCommentService taskCommentService;
-    @Autowired
-    private ITaskService taskService;
-    @Autowired
-    private DataSourceTransactionManager dataSourceTransactionManager;
-    @Autowired
-    private TransactionDefinition transactionDefinition;
+    public TaskCommentController(ITaskCommentService taskCommentService, ITaskService taskService, DataSourceTransactionManager dataSourceTransactionManager, TransactionDefinition transactionDefinition) {
+        this.taskCommentService = taskCommentService;
+        this.taskService = taskService;
+        this.dataSourceTransactionManager = dataSourceTransactionManager;
+        this.transactionDefinition = transactionDefinition;
+    }
 
     @ApiOperation(value = "对指定任务发送评论与评分", notes = "用户接口")
     @PostMapping("/send")
