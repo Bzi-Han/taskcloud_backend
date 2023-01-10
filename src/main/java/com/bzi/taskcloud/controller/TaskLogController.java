@@ -42,8 +42,12 @@ public class TaskLogController {
     @Value("${engine.logRelativePath}")
     private String logRelativePath;
 
+    private final ITaskLogService taskLogService;
+
     @Autowired
-    private ITaskLogService taskLogService;
+    public TaskLogController(ITaskLogService taskLogService) {
+        this.taskLogService = taskLogService;
+    }
 
     @ApiOperation(value = "获取指定天数的任务投递日志", notes = "用户接口")
     @GetMapping("/items/{days}")
@@ -52,7 +56,11 @@ public class TaskLogController {
 
         // 计算最后取出的时间
         LocalDateTime now = LocalDateTime.now();
-        now = now.withDayOfYear(now.getDayOfYear() - days);
+        if (days < now.getDayOfYear()) {
+            now = now.withDayOfYear(now.getDayOfYear() - days);
+        } else {
+            now = now.withDayOfYear(1);
+        }
 
         // 查询
         List<TaskLog> data = taskLogService.list(new QueryWrapper<TaskLog>()

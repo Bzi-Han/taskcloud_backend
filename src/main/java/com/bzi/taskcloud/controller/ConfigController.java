@@ -44,8 +44,12 @@ import java.security.NoSuchProviderException;
 @RequestMapping("/config")
 @Api(value = "通行证配置模块", description = "通行证配置模块")
 public class ConfigController {
+    private final IConfigService configService;
+
     @Autowired
-    private IConfigService configService;
+    public ConfigController(IConfigService configService) {
+        this.configService = configService;
+    }
 
     @ApiOperation(value = "通信证配置信息更新", notes = "用户接口")
     @PutMapping("/update")

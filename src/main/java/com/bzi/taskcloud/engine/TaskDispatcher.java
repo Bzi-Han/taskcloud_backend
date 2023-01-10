@@ -30,14 +30,18 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class TaskDispatcher {
+    private final EngineTerminal engineTerminal;
+    private final ITaskService taskService;
+    private final ITaskLogService taskLogService;
+    private final IConfigService configService;
+
     @Autowired
-    private EngineTerminal engineTerminal;
-    @Autowired
-    private ITaskService taskService;
-    @Autowired
-    private ITaskLogService taskLogService;
-    @Autowired
-    private IConfigService configService;
+    public TaskDispatcher(EngineTerminal engineTerminal, ITaskService taskService, ITaskLogService taskLogService, IConfigService configService) {
+        this.engineTerminal = engineTerminal;
+        this.taskService = taskService;
+        this.taskLogService = taskLogService;
+        this.configService = configService;
+    }
 
     private final HashedWheelTimer timingTaskPool = new HashedWheelTimer(1, TimeUnit.SECONDS, 60);
 
