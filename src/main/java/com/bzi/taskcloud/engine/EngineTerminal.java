@@ -60,7 +60,23 @@ public class EngineTerminal extends ChannelInboundHandlerAdapter {
         this.reconnectInterval = reconnectInterval;
         this.logRelativePath = logRelativePath;
 
-        connectService();
+        for (int i = 0; i < 6; i++) {
+            try {
+                connectService();
+                break;
+            } catch (Exception e) {
+                if (5 == i) {
+                    System.out.println("==============================ERROR==============================");
+                    LoggerUtil.failed("无法连接至目标脚本容器", e);
+                    System.out.println("==============================ERROR==============================");
+                    throw new Error();
+                } else {
+                    LoggerUtil.failed("第" + (i + 1) + "次尝试连接核心脚本容器失败，将在10秒后重试", e);
+                    Thread.sleep(10000);
+                }
+            }
+        }
+
         waitForHandshake.get();
         if (!isConnected) {
             System.out.println("==============================ERROR==============================");
@@ -90,7 +106,7 @@ public class EngineTerminal extends ChannelInboundHandlerAdapter {
             // start reconnect thread
             new Thread(() -> {
                 while (!reconnectService()) {
-                    LoggerUtil.failed("重连核心脚本容器失败，等待下次尝试", new Throwable("target:" + host + ":" + port));
+                    LoggerUtil.failed("重连核心脚本容器失败，将在" + (reconnectInterval / 1000.f) + "秒后尝试", new Throwable("target:" + host + ":" + port));
 
                     try {
                         Thread.sleep(reconnectInterval);
@@ -195,7 +211,7 @@ public class EngineTerminal extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void connectService() {
+    private void connectService() throws InterruptedException {
         bootstrap = new Bootstrap();
 
         bootstrap.channel(NioSocketChannel.class);
@@ -217,14 +233,7 @@ public class EngineTerminal extends ChannelInboundHandlerAdapter {
             }
         });
 
-        try {
-            channel = bootstrap.connect().sync().channel();
-        } catch (Exception e) {
-            System.out.println("==============================ERROR==============================");
-            LoggerUtil.failed("连接到脚本容器失败", e);
-            System.out.println("==============================ERROR==============================");
-            throw new Error();
-        }
+        channel = bootstrap.connect().sync().channel();
     }
 
     private boolean reconnectService() {
